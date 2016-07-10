@@ -1,0 +1,311 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "NetworkAUE",
+      "metadata": {
+      "description": "VNet Name"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.0.0/16",
+      "metadata": {
+        "description": "VNet Address Prefix"
+      }
+    },
+    "subnetName": {
+      "type": "array",
+      "defaultValue": [ "FrontEnd", "AppLayer", "DataLayer", "GatewaySubnet" ],
+      "metadata": {
+        "description": "VNet Subnet Names"
+      }
+    },
+    "subnetAddressPrefix": {
+      "type": "array",
+      "defaultValue": [ "10.10.1.0/24", "10.10.11.0/24", "10.10.21.0/24", "10.10.250.0/24" ],
+      "metadata": {
+        "description": "VNet Subnet Address Prefixes"
+      }
+    }
+  },
+  "variables": {
+    "apiVersion": "2015-06-15",
+    "FrontendNsgName": "FrontendNSG",
+    "AppNsgName": "AppNSG",
+    "DataNsgName": "BackendNSG",
+    "FrontendPrefix": "10.10.1.0/24",
+    "AppPrefix": "10.10.11.0/24",
+    "DataPrefix": "10.10.21.0/24"
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('FrontendNsgName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('AppNsgName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('DataNsgName'))]"
+      ],
+      "tags": {
+        "Type": "Network",
+        "Environment": "Production",
+        "Purpose": "Infrastructure",
+        "Owner": "IT"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')[0]]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')[0]]"
+            }
+          },
+          {
+            "name": "[parameters('subnetName')[1]]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')[1]]"
+            }
+          },
+          {
+            "name": "[parameters('subnetName')[2]]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')[2]]"
+            }
+          },
+          {
+            "name": "[parameters('subnetName')[3]]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')[3]]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('FrontendNsgName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Type": "Network",
+        "Environment": "Production",
+        "Purpose": "Infrastructure",
+        "Owner": "IT"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "web_rule",
+            "properties": {
+              "description": "Allow Website",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "App_subnet_rule",
+            "properties": {
+              "description": "Outbound to App",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "[variables('AppPrefix')]",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "Block_Internal_Network",
+            "properties": {
+              "description": "Outbound to Internal Network",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Deny",
+              "priority": 2000,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('AppNsgName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Type": "Network",
+        "Environment": "Production",
+        "Purpose": "Infrastructure",
+        "Owner": "IT"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "fe_rule",
+            "properties": {
+              "description": "Allow Frontend",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[variables('FrontendPrefix')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "vnet_rule",
+            "properties": {
+              "description": "Block Internal Network",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 300,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DB_outbound_rule",
+            "properties": {
+              "description": "Allow Outbound DB",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "[variables('DataPrefix')]",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "Deny_Internet",
+            "properties": {
+              "description": "Deny_Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Internet",
+              "access": "Deny",
+              "priority": 2000,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('DataNsgName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Type": "Network",
+        "Environment": "Production",
+        "Purpose": "Infrastructure",
+        "Owner": "IT"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "app_rule",
+            "properties": {
+              "description": "Allow App servers",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[variables('AppPrefix')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "vnet_rule",
+            "properties": {
+              "description": "Block Internal Network",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Deny_Internet",
+            "properties": {
+              "description": "Deny_Internet",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Internet",
+              "access": "Deny",
+              "priority": 1000,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    } 
+  ]
+}
