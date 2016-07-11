@@ -4,21 +4,18 @@
   "parameters": {
     "adminUsername": {
       "type": "string",
-      "defaultValue": "admin123",
       "metadata": {
         "description": "Username for the Virtual Machine."
       }
     },
     "adminPassword": {
       "type": "securestring",
-      "defaultValue": "BC@dmin99",
       "metadata": {
         "description": "Password for the Virtual Machine."
       }
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "defaultValue": "asperiatest99",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
