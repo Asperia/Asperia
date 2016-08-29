@@ -11,19 +11,19 @@ The goal of this model is to provide an example of a release pipeline and cloud 
 
 ### Design Goals
 * Resource templates to provide functional documention of infrastructure.
-•	Nested resource templates to utilise code reuse.
-•	Resource units to describe a collection of resources that  collectively interact as a unit with other resource units e.g. a server comprises a NIC, public IP and a dedicated storage account.
-•	Source control to manage versioning of resource templates.
-•	Source control folder structure to organise resource templates .
-•	Resource tags to store metadata to enable reporting and GUI management tools.
-•	Servers treated as ‘cattle not pets’ i.e. no manual configuration.
-•	Desired State Configuration to control configuration.
-•	JAE - just enough adminstration principles to control administration.
-•	Azure Key Vault to store credentials used during the build process.
-•	Automation to implement and schedule virtual machine shutdown and startup.
-•	Automated build test release pipeline – GUI driven tools to assemble builds, validate and deploy.
-•	Resource groups (containers) for lifecycle management of resource units.
-•	Resource tags for reporting.
-•	Automation for dev/test server shutdown and startup – implemented as a resource tag.
-•	The resource build container is the functional build document and is held in source control.
+* Nested resource templates to utilise code reuse.
+* Resource units to describe a collection of resources that  collectively interact as a unit with other resource units e.g. a server comprises a NIC, public IP and a dedicated storage account.
+* Source control to manage versioning of resource templates.
+* Source control folder structure to organise resource templates .
+* Resource tags to store metadata to enable reporting and GUI management tools.
+* Servers treated as ‘cattle not pets’ i.e. no manual configuration.
+* Desired State Configuration to control configuration.
+* JAE - just enough adminstration principles to control administration.
+* Azure Key Vault to store credentials used during the build process.
+* Automation to implement and schedule virtual machine shutdown and startup.
+* Automated build test release pipeline – GUI driven tools to assemble builds, validate and deploy.
+* Resource groups (containers) for lifecycle management of resource units.
+* Resource tags for reporting.
+* Automation for dev/test server shutdown and startup – implemented as a resource tag.
+* The resource build container is the functional build document and is held in source control.
 
