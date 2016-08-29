@@ -130,14 +130,17 @@ The purpose of this PowerShell module is to provide a set of functions that enab
 The module includes a function to parse the markdown file and extract parameters that can be used to populate the ‘parameters.json’ file. This function can also be run in ‘test’ mode to compare the parameters found in the markdown vs the target ‘parameters.json’ file. There is also a function to validate the ‘parameters.json’ file once it has been populated.
 The following three patterns are parsed in the markdown file;
 
-| 1.	Standard parameter  | 2.	Hash table     |  3.	Array         |
-|---------------------------|:--------------------:|---------------------:|
+| 1.	**Standard parameter**  | 2.	**Hash table**     |  3.	**Array**         |
+|:--------------------------|:---------------------|:---------------------|
 |                           |                      |                      |
 | Parameter Name = value    | Parameter Name = {   | Parameter Name = [   |
 |                           | Name = value         | Name                 |
 |                           | ...                  | ...                  |
 |                           | }                    | }                    |
 
+Action taken;
+Pattern 1 - **Standard parameter **
+*Direct mapping of name/value*
 
 
 
